@@ -1,0 +1,15 @@
+package com.github.jiunhungguo.flightbackend.dto;
+
+import java.math.BigDecimal;
+
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
+public class UpdateCityRequest {
+    private String name;
+    private String country;
+    private BigDecimal latitude;
+    private BigDecimal longitude;
+}
