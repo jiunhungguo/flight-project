@@ -17,8 +17,9 @@ import com.github.jiunhungguo.flightbackend.dto.UpdateCityRequest;
 import com.github.jiunhungguo.flightbackend.service.CityService;
 
 @RestController
-@RequestMapping("/api/cities")
+@RequestMapping("/cities")
 public class CityController {
+
     private final CityService cityService;
 
     public CityController(CityService cityService) {
@@ -30,9 +31,14 @@ public class CityController {
         return cityService.getAllCities();
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/id/{id}")
     public CityResponse getCityById(@PathVariable Long id) {
         return cityService.getCityById(id);
+    }
+
+    @GetMapping("/city/{name}")
+    public List<CityResponse> getCityByName(@PathVariable String name) {
+        return cityService.getCityByName(name);
     }
 
     @PostMapping

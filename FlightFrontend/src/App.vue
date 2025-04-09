@@ -43,14 +43,22 @@
     </v-app-bar>
 
     <v-main>
-      <div class="pa-4">
-        <v-sheet
-          border="dashed md"
-          color="surface-light"
-          height="500"
-          rounded="lg"
-          width="100%"
+      <SearchBar></SearchBar>
+      <div class="input-group mb-3">
+        <input
+          type="text"
+          class="form-control"
+          placeholder="Recipient's username"
+          aria-label="Recipient's username"
+          aria-describedby="button-addon2"
         />
+        <button
+          class="btn btn-outline-secondary"
+          type="button"
+          id="button-addon2"
+        >
+          Button
+        </button>
       </div>
     </v-main>
   </v-layout>
@@ -58,6 +66,7 @@
 
 <script setup>
 import { ref } from "vue";
+import SearchBar from "./components/SearchBar.vue";
 
 const drawer = ref(true);
 

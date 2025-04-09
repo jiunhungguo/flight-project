@@ -69,10 +69,15 @@ public class AttractionServiceImpl implements AttractionService {
     }
 
     @Override
-    public AttractionResponse getAttractionById(Long id) {
-        Attraction attraction = attractionRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Attraction not found"));
-        return mapToResponse(attraction);
+    public List<AttractionResponse> getAttractionByName(String name) {
+        List<Attraction> attraction = attractionRepository.findByNameContaining(name);
+        if (attraction.isEmpty()) {
+            throw new RuntimeException("No attractions found");
+        }
+
+        return attraction.stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
     }
 
     @Override

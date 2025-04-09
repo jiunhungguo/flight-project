@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class CityServiceImpl implements CityService {
+
     private final CityRepository cityRepository;
 
     @Override
@@ -30,6 +31,18 @@ public class CityServiceImpl implements CityService {
         City city = cityRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("City not found"));
         return mapToResponse(city);
+    }
+
+    @Override
+    public List<CityResponse> getCityByName(String name) {
+        List<City> city = cityRepository.findByNameContaining(name);
+        if (city.isEmpty()) {
+            throw new RuntimeException("No cities found");
+        }
+
+        return city.stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
     }
 
     @Override

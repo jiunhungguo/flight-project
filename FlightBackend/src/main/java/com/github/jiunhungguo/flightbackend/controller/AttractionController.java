@@ -43,9 +43,9 @@ public class AttractionController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<AttractionResponse> getById(@PathVariable Long id) {
-        return ResponseEntity.ok(attractionService.getAttractionById(id));
+    @GetMapping("/{name}")
+    public ResponseEntity<List<AttractionResponse>> getAttractionByName(@PathVariable String name) {
+        return ResponseEntity.ok(attractionService.getAttractionByName(name));
     }
 
     @GetMapping("/city/{cityId}")

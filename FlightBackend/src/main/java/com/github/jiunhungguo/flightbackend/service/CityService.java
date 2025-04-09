@@ -7,9 +7,12 @@ import com.github.jiunhungguo.flightbackend.dto.CreateCityRequest;
 import com.github.jiunhungguo.flightbackend.dto.UpdateCityRequest;
 
 public interface CityService {
+
     List<CityResponse> getAllCities();
 
     CityResponse getCityById(Long id);
+
+    List<CityResponse> getCityByName(String name);
 
     CityResponse createCity(CreateCityRequest request);
 

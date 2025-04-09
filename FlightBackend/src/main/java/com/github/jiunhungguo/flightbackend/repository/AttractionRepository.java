@@ -10,4 +10,5 @@ public interface AttractionRepository extends JpaRepository<Attraction, Long> {
 
     List<Attraction> findByCityId(Long acityId);
 
+    List<Attraction> findByNameContaining(String name);
 }
