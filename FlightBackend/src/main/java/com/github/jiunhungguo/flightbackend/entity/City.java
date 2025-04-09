@@ -29,6 +29,8 @@ public class City {
     private BigDecimal latitude;
     @Column(name = "longitude", precision = 5, scale = 2)
     private BigDecimal longitude;
+    @Column(name = "image")
+    private String image;
 
     public City(Long id) {
         this.id = id;

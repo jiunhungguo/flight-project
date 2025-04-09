@@ -13,4 +13,5 @@ public class CreateCityRequest {
     private String country;
     private BigDecimal latitude;
     private BigDecimal longitude;
+    private String image;
 }

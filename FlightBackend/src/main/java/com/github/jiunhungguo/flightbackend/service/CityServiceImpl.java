@@ -1,9 +1,15 @@
 package com.github.jiunhungguo.flightbackend.service;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.github.jiunhungguo.flightbackend.dto.CityResponse;
 import com.github.jiunhungguo.flightbackend.dto.CreateCityRequest;
@@ -11,6 +17,7 @@ import com.github.jiunhungguo.flightbackend.dto.UpdateCityRequest;
 import com.github.jiunhungguo.flightbackend.entity.City;
 import com.github.jiunhungguo.flightbackend.repository.CityRepository;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -52,19 +59,17 @@ public class CityServiceImpl implements CityService {
         city.setCountry(request.getCountry());
         city.setLatitude(request.getLatitude());
         city.setLongitude(request.getLongitude());
+        city.setImage(request.getImage());
 
         return mapToResponse(cityRepository.save(city));
     }
 
     @Override
-    public CityResponse updateCity(Long id, UpdateCityRequest request) {
+    public CityResponse updateCityImage(Long id, UpdateCityRequest request) {
         City city = cityRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("City not found"));
+                .orElseThrow(() -> new EntityNotFoundException("City not found"));
 
-        city.setName(request.getName());
-        city.setCountry(request.getCountry());
-        city.setLatitude(request.getLatitude());
-        city.setLongitude(request.getLongitude());
+        city.setImage(request.getImage());
 
         return mapToResponse(cityRepository.save(city));
     }
@@ -81,6 +86,8 @@ public class CityServiceImpl implements CityService {
         response.setCountry(city.getCountry());
         response.setLatitude(city.getLatitude());
         response.setLongitude(city.getLongitude());
+        response.setImage(city.getImage());
+
         return response;
     }
 }

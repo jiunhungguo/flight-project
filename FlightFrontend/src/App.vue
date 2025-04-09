@@ -21,11 +21,20 @@
         @click="drawer = !drawer"
       />
 
-      <v-app-bar-title>Flight Management System</v-app-bar-title>
+      <v-app-bar-title
+        ><img
+          src="@/assets/Easytrip_logo.png"
+          alt="Logo"
+          class="w-40 h-auto object-cover"
+      /></v-app-bar-title>
 
       <template #append>
         <v-btn class="text-none me-2" height="48" icon slim>
-          <v-avatar color="surface-light" image="" size="32" />
+          <v-avatar
+            color="surface-light"
+            image="@/assets/Easytrip_icon.png"
+            size="32"
+          />
 
           <v-menu activator="parent">
             <v-list density="compact" nav>
