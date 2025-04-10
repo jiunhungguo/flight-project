@@ -32,7 +32,7 @@
             ? 'border-b-2 border-black pb-1 font-semibold'
             : '',
         ]"
-        @click="setSelectedTab('addCities')"
+        @click="addCity"
       >
         Add Cities
       </div>
@@ -89,14 +89,14 @@
           </div>
           <div class="flex space-x-3 mt-auto">
             <button
-              @click="updateCityImage(city)"
               class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1 rounded text-sm"
+              @click="updateCityImage(city)"
             >
               Edit Image
             </button>
             <button
-              @click="confirmDeleteCity(city.id)"
               class="bg-red-600 hover:bg-red-700 text-white px-4 py-1 rounded text-sm"
+              @click="confirmDeleteCity(city.id)"
             >
               Delete
             </button>
@@ -145,20 +145,20 @@
           </div>
           <div class="flex justify-center space-x-4 mt-auto mb-2">
             <button
-              @click="editAttraction(attraction)"
               class="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 text-sm"
+              @click="editAttraction(attraction)"
             >
               Edit
             </button>
             <button
-              @click="uploadImages(attraction.id, attraction.name)"
               class="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 text-sm"
+              @click="uploadImages(attraction.id, attraction.name)"
             >
               Upload
             </button>
             <button
-              @click="confirmDeleteAttraction(attraction.id, attraction.name)"
               class="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 text-sm"
+              @click="confirmDeleteAttraction(attraction.id, attraction.name)"
             >
               Delete
             </button>
@@ -239,58 +239,72 @@ const searchCities = async () => {
 };
 
 const updateCityImage = async (city) => {
-  const { value: file } = await Swal.fire({
+  await Swal.fire({
     title: "Upload New City Image",
-    input: "file",
-    inputAttributes: {
-      accept: "image/*",
-      "aria-label": "Upload city image",
-    },
+    html: `
+      <div class="flex flex-col gap-2">
+        <div class="flex items-center gap-0 border border-gray-300 rounded overflow-hidden">
+          <span class="px-4 py-2 bg-gray-100 text-sm text-gray-800 whitespace-nowrap">Choose File</span>
+          <input 
+            type="file" 
+            id="cityImageFile" 
+            accept="image/*" 
+            class="flex-1 text-sm px-3 py-2 file:hidden focus:outline-none"
+          />
+        </div>
+      </div>
+    `,
+    focusConfirm: false,
+    showCancelButton: true,
     confirmButtonText: "Upload",
     cancelButtonText: "Cancel",
-    showCancelButton: true,
     customClass: {
       confirmButton:
         "bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded",
       cancelButton:
-        "bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded ml-2",
+        "bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded",
+    },
+    preConfirm: async () => {
+      const file = document.getElementById("cityImageFile").files[0];
+      if (!file) {
+        Swal.showValidationMessage("Please select an image");
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("image", file);
+
+      try {
+        await axios.post(
+          `http://localhost:8080/cities/imageUrl/${city.id}`,
+          formData
+        );
+        await Swal.fire({
+          title: "Success",
+          text: "Image updated!",
+          icon: "success",
+          confirmButtonText: "OK",
+          customClass: {
+            confirmButton:
+              "bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded",
+          },
+        });
+        await searchCities();
+      } catch (err) {
+        console.error("Upload failed", err);
+        await Swal.fire({
+          title: "Error",
+          text: "Image upload failed",
+          icon: "error",
+          confirmButtonText: "OK",
+          customClass: {
+            confirmButton:
+              "bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded",
+          },
+        });
+      }
     },
   });
-
-  if (file) {
-    const formData = new FormData();
-    formData.append("image", file);
-
-    try {
-      await axios.post(
-        `http://localhost:8080/cities/imageUrl/${city.id}`,
-        formData
-      );
-      await Swal.fire({
-        title: "Success",
-        text: "Image updated!",
-        icon: "success",
-        confirmButtonText: "OK",
-        customClass: {
-          confirmButton:
-            "bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded",
-        },
-      });
-      await searchCities();
-    } catch (err) {
-      console.error("Upload failed", err);
-      await Swal.fire({
-        title: "Error",
-        text: "Image upload failed",
-        icon: "error",
-        confirmButtonText: "OK",
-        customClass: {
-          confirmButton:
-            "bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded",
-        },
-      });
-    }
-  }
 };
 
 const confirmDeleteCity = (id) => {
@@ -319,6 +333,98 @@ const confirmDeleteCity = (id) => {
   });
 };
 
+const addCity = async () => {
+  await Swal.fire({
+    title: "Add City",
+    html: `
+      <div class="flex flex-col gap-2">
+        <div class="flex items-center gap-2">
+          <label for="name" class="w-24 text-sm font-medium">Name</label>
+          <input id="name" autocomplete="off" class="flex-1 px-3 py-2 border border-gray-300 rounded text-sm" placeholder="City Name" />
+        </div>
+
+        <div class="flex items-center gap-2">
+          <label for="country" class="w-24 text-sm font-medium">Country</label>
+          <input id="country" autocomplete="off" class="flex-1 px-3 py-2 border border-gray-300 rounded text-sm" placeholder="Country" />
+        </div>
+
+        <div class="flex items-center gap-2">
+          <label for="latitude" class="w-24 text-sm font-medium">Latitude</label>
+          <input id="latitude" autocomplete="off" class="flex-1 px-3 py-2 border border-gray-300 rounded text-sm" placeholder="Latitude" />
+        </div>
+
+        <div class="flex items-center gap-2">
+          <label for="longitude" class="w-24 text-sm font-medium">Longitude</label>
+          <input id="longitude" autocomplete="off" class="flex-1 px-3 py-2 border border-gray-300 rounded text-sm" placeholder="Longitude" />
+        </div>
+
+        <div class="flex items-center gap-0 border border-gray-300 rounded overflow-hidden">
+          <span class="px-4 py-2 bg-gray-100 text-sm text-gray-800 whitespace-nowrap">Choose File</span>
+          <input type="file" id="cityImage" accept="image/*" class="flex-1 text-sm px-3 py-2 file:hidden focus:outline-none" />
+        </div>
+      </div>
+    `,
+    focusConfirm: false,
+    showCancelButton: true,
+    confirmButtonText: "Create",
+    cancelButtonText: "Cancel",
+    customClass: {
+      confirmButton:
+        "bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded",
+      cancelButton:
+        "bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded",
+    },
+    preConfirm: async () => {
+      const name = document.getElementById("name").value.trim();
+      const country = document.getElementById("country").value.trim();
+      const latitude = parseFloat(document.getElementById("latitude").value);
+      const longitude = parseFloat(document.getElementById("longitude").value);
+      const imageFile = document.getElementById("cityImage").files[0];
+
+      if (!name || !country || isNaN(latitude) || isNaN(longitude)) {
+        Swal.showValidationMessage("Please fill all fields correctly.");
+        return;
+      }
+
+      try {
+        const cityRes = await axios.post("http://localhost:8080/cities", {
+          name,
+          country,
+          latitude,
+          longitude,
+        });
+
+        const cityId = cityRes.data.id;
+
+        if (imageFile) {
+          const formData = new FormData();
+          formData.append("image", imageFile);
+
+          await axios.post(
+            `http://localhost:8080/cities/imageUrl/${cityId}`,
+            formData
+          );
+        }
+
+        await Swal.fire({
+          icon: "success",
+          title: "City added!",
+          confirmButtonText: "OK",
+          customClass: {
+            confirmButton:
+              "bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded",
+          },
+        });
+
+        await searchCities();
+      } catch (err) {
+        console.error("Add city failed", err);
+        Swal.showValidationMessage("Failed to add city.");
+      }
+    },
+  });
+};
+
 const addAttraction = () => {
   let cityOptions = "";
   cities.value.forEach((city) => {
@@ -328,18 +434,60 @@ const addAttraction = () => {
   Swal.fire({
     title: "Add Attraction",
     html: `
-      <input id="name" class="swal2-input" placeholder="Name">
-      <input id="description" class="swal2-input" placeholder="Description">
-      <input id="address" class="swal2-input" placeholder="Address">
-      <input id="latitude" class="swal2-input" placeholder="Latitude">
-      <input id="longitude" class="swal2-input" placeholder="Longitude">
-      <input id="rating" class="swal2-input" placeholder="Rating">
-      <input id="category" class="swal2-input" placeholder="Category (comma separated)">
-      <select id="cityId" class="swal2-select">${cityOptions}</select>
+     <div class="flex flex-col gap-2">
+        <div class="flex items-center gap-2">
+          <label for="name" class="w-24 text-sm font-medium">Name</label>
+          <input id="name" autocomplete="off" class="flex-1 px-3 py-2 border border-gray-300 rounded text-sm" placeholder="Name">
+        </div>
+
+        <div class="flex items-center gap-2">
+          <label for="description" class="w-24 text-sm font-medium">Description</label>
+          <input id="description" autocomplete="off" class="flex-1 px-3 py-2 border border-gray-300 rounded text-sm" placeholder="Description">
+        </div>
+
+        <div class="flex items-center gap-2">
+          <label for="address" class="w-24 text-sm font-medium">Address</label>
+          <input id="address" autocomplete="off" class="flex-1 px-3 py-2 border border-gray-300 rounded text-sm" placeholder="Address">
+        </div>
+
+        <div class="flex items-center gap-2">
+          <label for="latitude" class="w-24 text-sm font-medium">Latitude</label>
+          <input id="latitude" autocomplete="off" class="flex-1 px-3 py-2 border border-gray-300 rounded text-sm" placeholder="Latitude">
+        </div>
+
+        <div class="flex items-center gap-2">
+          <label for="longitude" class="w-24 text-sm font-medium">Longitude</label>
+          <input id="longitude" autocomplete="off" class="flex-1 px-3 py-2 border border-gray-300 rounded text-sm" placeholder="Longitude">
+        </div>
+
+        <div class="flex items-center gap-2">
+          <label for="rating" class="w-24 text-sm font-medium">Rating</label>
+          <input id="rating" type="number" min="1" max="5" autocomplete="off" class="flex-1 px-3 py-2 border border-gray-300 rounded text-sm" placeholder="Rating">
+        </div>
+
+        <div class="flex items-center gap-2">
+          <label for="category" class="w-24 text-sm font-medium">Category</label>
+          <input id="category" autocomplete="off" class="flex-1 px-3 py-2 border border-gray-300 rounded text-sm" placeholder="Category (comma separated)">
+        </div>
+
+        <div class="flex items-center gap-2">
+          <label for="cityId" class="w-24 text-sm font-medium">City</label>
+          <select id="cityId" class="flex-1 px-3 py-2 border border-gray-300 rounded text-sm">
+            ${cityOptions}
+          </select>
+        </div>
+      </div>
     `,
+    focusConfirm: false,
+    showCancelButton: true,
     confirmButtonText: "Create",
     cancelButtonText: "Cancel",
-    showCancelButton: true,
+    customClass: {
+      confirmButton:
+        "bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded",
+      cancelButton:
+        "bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded",
+    },
     preConfirm: async () => {
       const name = document.getElementById("name").value;
       const description = document.getElementById("description").value;
@@ -427,10 +575,14 @@ async function editAttraction(attraction) {
       </div>
     `,
     focusConfirm: false,
+    showCancelButton: true,
     confirmButtonText: "Update",
+    cancelButtonText: "Cancel",
     customClass: {
       confirmButton:
         "bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded",
+      cancelButton:
+        "bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded",
     },
     preConfirm: async () => {
       const name = document.getElementById("name").value;
@@ -474,19 +626,30 @@ async function editAttraction(attraction) {
 }
 
 async function uploadImages(attractionId, attractionName) {
-  const { value: confirmed } = await Swal.fire({
+  await Swal.fire({
     title: "Upload Photo",
     html: `
-      <div class="flex items-center gap-2">
-        <label for="imageFile" class="w-24 text-sm font-medium">Image</label>
-        <input type="file" id="imageFile" accept="image/*" class="flex-1 px-3 py-2 border border-gray-300 rounded text-sm" />
+      <div class="flex flex-col gap-2">
+        <div class="flex items-center gap-0 border border-gray-300 rounded overflow-hidden">
+          <span class="px-4 py-2 bg-gray-100 text-sm text-gray-800 whitespace-nowrap">Choose File</span>
+          <input 
+            type="file" 
+            id="imageFile" 
+            accept="image/*" 
+            class="flex-1 text-sm px-3 py-2 file:hidden focus:outline-none"
+          />
+        </div>
       </div>
     `,
     focusConfirm: false,
+    showCancelButton: true,
     confirmButtonText: "Upload",
+    cancelButtonText: "Cancel",
     customClass: {
       confirmButton:
         "bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded",
+      cancelButton:
+        "bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded",
     },
     preConfirm: async () => {
       const imageFile = document.getElementById("imageFile").files[0];
@@ -521,6 +684,8 @@ async function uploadImages(attractionId, attractionName) {
             confirmButton:
               "bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded",
           },
+        }).then(() => {
+          searchCities();
         });
       } catch (error) {
         console.error("Upload failed:", error);
